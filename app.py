@@ -14,6 +14,9 @@ from streamlit import session_state as sst
 INDEX_NAME = "hyundai-test"
 NAMESPACE = "test"
 USER_DICT_PATH = "user_dict_1018.txt"
+BM25_ENCODER_PATH = (
+    "/Users/lwj/workspace/QnA/bm25_통합 Q&A_상품탐색_유형 분류 중간결과_1018_납품.json"
+)
 
 
 @st.cache_resource
@@ -24,6 +27,7 @@ def init(index_name, user_dict_path):
     )
     kiwi = KiwiTokenizer(user_dict_path)
     bm25 = BM25Encoder()
+    bm25.load(BM25_ENCODER_PATH)
     bm25.replace_with_Kiwi_tokenizer(kiwi)
 
     sst.vs = PineconeVectorStore(
