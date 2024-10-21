@@ -258,7 +258,7 @@ class PineconeVectorStore(VectorStore):
         ids: Optional[List[str]] = None,
         namespace: Optional[str] = None,
         batch_size: int = 32,
-        embedding_chunk_size: int = 1000,
+        embedding_chunk_size: int = 2000,
         *,
         async_req: bool = True,
         id_prefix: Optional[str] = None,
@@ -339,7 +339,7 @@ class PineconeVectorStore(VectorStore):
                         "metadata": metadata,
                     }
                     for _id, sparse, dense, metadata in zip(
-                        ids, sparse_embeddings, embeddings, chunk_metadatas
+                        chunk_ids, sparse_embeddings, embeddings, chunk_metadatas
                     )
                 ]
 
