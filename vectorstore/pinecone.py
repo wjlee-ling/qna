@@ -752,7 +752,7 @@ class PineconeVectorStore(VectorStore):
         """
         return self._index.query(
             namespace=namespace,
-            filter=filters #{"genre": {"$eq": "documentary"}},
+            filter=filters,  # {"genre": {"$eq": "documentary"}},
             top_k=top_k,
             include_metadata=True,  # Include metadata in the response.
         )
