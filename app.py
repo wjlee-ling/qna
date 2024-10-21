@@ -42,7 +42,8 @@ def init(index_name, user_dict_path):
 init(index_name=INDEX_NAME, user_dict_path=USER_DICT_PATH)
 st.title("현대차 Casper AI 크루 작업 도구")
 query = st.text_input(label="작업할 문장을 입력해 주세요.")
+top_k = st.number_input(label="검색 결과 갯수", min_value=5, max_value=20)
 if query:
-    resp = sst.vs.similarity_search(query=query)
+    resp = sst.vs.similarity_search(query=query, k=top_k)
     for item in resp:
         st.write(item)
