@@ -13,6 +13,7 @@ langchain-openai = "^0.2.3"
 langchain-pinecone = "^0.2.0"
 pinecone-text = "^0.9.0"
 kiwipiepy = "^0.19.1"
+pandas = "^2.2.3"
 
 
 [build-system]

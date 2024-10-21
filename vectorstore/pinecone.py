@@ -16,6 +16,7 @@ from typing import (
 )
 
 import numpy as np
+import pandas as pd
 from dotenv import load_dotenv
 from langchain_core._api.deprecation import deprecated
 from langchain_core.documents import Document
@@ -251,6 +252,41 @@ class PineconeVectorStore(VectorStore):
         """Access the query embedding object if available."""
         return self._embedding
 
+    def upsert_from_dataframe(
+        self,
+        csv_path: str,
+        text_col: str,
+        id_col: Optional[List[str]] = None,
+        metadata_cols: Optional[List[str]] = None,
+        namespace: Optional[str] = None,
+        batch_size: int = 32,
+    ):
+        """
+        csv를 import 하여 정해진 column 이름대로 text/id/metadata 분리하여 upsert
+        Args
+            - text_col: column to embed
+            - id_col: column of unique ids
+            - metadata: column(s) of metadata. If not specified, use all the columns except for the `text_col` column.
+
+        """
+        original_df = pd.read_csv(csv_path, chunksize=1000)
+        for chunk_df in original_df:
+            texts = chunk_df[text_col].to_list()
+            ids = chunk_df[id_col].astype(str).to_list() if id_col else None
+            metadatas = (
+                chunk_df[metadata_cols].to_dict(orient="records")
+                if metadata_cols
+                else chunk_df.drop(columns=[text_col]).to_dict(orient="records")
+            )
+
+            self.add_texts(
+                texts=texts,
+                metadatas=metadatas,
+                ids=ids,
+                namespace=namespace,
+                batch_size=batch_size,
+            )
+
     def add_texts(
         self,
         texts: Iterable[str],
@@ -258,7 +294,7 @@ class PineconeVectorStore(VectorStore):
         ids: Optional[List[str]] = None,
         namespace: Optional[str] = None,
         batch_size: int = 32,
-        embedding_chunk_size: int = 2000,
+        embedding_chunk_size: int = 1000,
         *,
         async_req: bool = True,
         id_prefix: Optional[str] = None,
@@ -295,7 +331,7 @@ class PineconeVectorStore(VectorStore):
             ]
         metadatas = metadatas or [{} for _ in texts]
         for metadata, text in zip(metadatas, texts):
-            metadata[self._text_key] = text
+            metadata[self._text_key] = text.strip()
 
         # For loops to avoid memory issues and optimize when using HTTP based embeddings
         # The first loop runs the embeddings, it benefits when using OpenAI embeddings
