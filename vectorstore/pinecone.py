@@ -256,7 +256,7 @@ class PineconeVectorStore(VectorStore):
         self,
         csv_path: str,
         text_col: str,
-        id_col: Optional[List[str]] = None,
+        id_col: Optional[str] = None,
         metadata_cols: Optional[List[str]] = None,
         namespace: Optional[str] = None,
         batch_size: int = 32,
