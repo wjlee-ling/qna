@@ -8,6 +8,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
     Iterable,
     List,
     Optional,
@@ -726,6 +727,19 @@ class PineconeVectorStore(VectorStore):
             raise ValueError("Either ids, delete_all, or filter must be provided.")
 
         return None
+
+    def update_metadata(
+        self,
+        ids: Optional[List[str]],
+        new_data: Optional[List[Dict]],
+        namespace: Optional[str] = None,
+    ):
+        for id, record in zip(ids, new_data):
+            self._index.update(
+                id=id,
+                set_metadata=record,
+                namespace=namespace,
+            )
 
 
 @deprecated(since="0.0.3", removal="0.3.0", alternative="PineconeVectorStore")
