@@ -14,6 +14,7 @@ langchain-pinecone = "^0.2.0"
 pinecone-text = "^0.9.0"
 kiwipiepy = "^0.19.1"
 streamlit = "^1.39.0"
+pandas = "^2.2.3"
 
 
 [build-system]

@@ -8,6 +8,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Callable,
+    Dict,
     Iterable,
     List,
     Optional,
@@ -16,6 +17,7 @@ from typing import (
 )
 
 import numpy as np
+import pandas as pd
 from dotenv import load_dotenv
 from langchain_core._api.deprecation import deprecated
 from langchain_core.documents import Document
@@ -251,6 +253,41 @@ class PineconeVectorStore(VectorStore):
         """Access the query embedding object if available."""
         return self._embedding
 
+    def upsert_from_dataframe(
+        self,
+        csv_path: str,
+        text_col: str,
+        id_col: Optional[str] = None,
+        metadata_cols: Optional[List[str]] = None,
+        namespace: Optional[str] = None,
+        batch_size: int = 32,
+    ):
+        """
+        csv를 import 하여 정해진 column 이름대로 text/id/metadata 분리하여 upsert
+        Args
+            - text_col: column to embed
+            - id_col: column of unique ids
+            - metadata: column(s) of metadata. If not specified, use all the columns except for the `text_col` column.
+
+        """
+        original_df = pd.read_csv(csv_path, chunksize=1000)
+        for chunk_df in original_df:
+            texts = chunk_df[text_col].to_list()
+            ids = chunk_df[id_col].astype(str).to_list() if id_col else None
+            metadatas = (
+                chunk_df[metadata_cols].to_dict(orient="records")
+                if metadata_cols
+                else chunk_df.drop(columns=[text_col]).to_dict(orient="records")
+            )
+
+            self.add_texts(
+                texts=texts,
+                metadatas=metadatas,
+                ids=ids,
+                namespace=namespace,
+                batch_size=batch_size,
+            )
+
     def add_texts(
         self,
         texts: Iterable[str],
@@ -295,7 +332,7 @@ class PineconeVectorStore(VectorStore):
             ]
         metadatas = metadatas or [{} for _ in texts]
         for metadata, text in zip(metadatas, texts):
-            metadata[self._text_key] = text
+            metadata[self._text_key] = text.strip()
 
         # For loops to avoid memory issues and optimize when using HTTP based embeddings
         # The first loop runs the embeddings, it benefits when using OpenAI embeddings
@@ -339,7 +376,7 @@ class PineconeVectorStore(VectorStore):
                         "metadata": metadata,
                     }
                     for _id, sparse, dense, metadata in zip(
-                        ids, sparse_embeddings, embeddings, chunk_metadatas
+                        chunk_ids, sparse_embeddings, embeddings, chunk_metadatas
                     )
                 ]
 
@@ -690,6 +727,35 @@ class PineconeVectorStore(VectorStore):
             raise ValueError("Either ids, delete_all, or filter must be provided.")
 
         return None
+
+    def update_metadata(
+        self,
+        ids: Optional[List[str]],
+        new_data: Optional[List[Dict]],
+        namespace: Optional[str] = None,
+    ):
+        for id, record in zip(ids, new_data):
+            self._index.update(
+                id=id,
+                set_metadata=record,
+                namespace=namespace,
+            )
+
+    def filter_by_metadata(
+        self,
+        filters: Dict,
+        namespace: Optional[str] = None,
+        top_k: int = 10,
+    ):
+        """
+        For the valid syntax for `filters`, refer to [Pinecone Docs](https://docs.pinecone.io/guides/data/filter-with-metadata)
+        """
+        return self._index.query(
+            namespace=namespace,
+            filter=filters #{"genre": {"$eq": "documentary"}},
+            top_k=top_k,
+            include_metadata=True,  # Include metadata in the response.
+        )
 
 
 @deprecated(since="0.0.3", removal="0.3.0", alternative="PineconeVectorStore")

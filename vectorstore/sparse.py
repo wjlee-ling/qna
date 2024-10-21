@@ -22,11 +22,11 @@ class KiwiTokenizer(BM25Tokenizer):
         if user_dict_path:
             self._tokenizer.load_user_dictionary(user_dict_path)
 
-        self._tokenizer.lower_case = True
-        self._tokenizer.remove_punctuation = True
-        self._tokenizer.remove_stopwords = True
-        self._tokenizer.stem = True
-        self._tokenizer.language = "English"
+        self.lower_case = True
+        self.remove_punctuation = True
+        self.remove_stopwords = True
+        self.stem = True
+        self.language = "english"
 
     def __call__(self, text):
         return [
