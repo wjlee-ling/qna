@@ -741,6 +741,22 @@ class PineconeVectorStore(VectorStore):
                 namespace=namespace,
             )
 
+    def filter_by_metadata(
+        self,
+        filters: Dict,
+        namespace: Optional[str] = None,
+        top_k: int = 10,
+    ):
+        """
+        For the valid syntax for `filters`, refer to [Pinecone Docs](https://docs.pinecone.io/guides/data/filter-with-metadata)
+        """
+        return self._index.query(
+            namespace=namespace,
+            filter=filters #{"genre": {"$eq": "documentary"}},
+            top_k=top_k,
+            include_metadata=True,  # Include metadata in the response.
+        )
+
 
 @deprecated(since="0.0.3", removal="0.3.0", alternative="PineconeVectorStore")
 class Pinecone(PineconeVectorStore):
