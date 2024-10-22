@@ -15,9 +15,7 @@ from streamlit import session_state as sst
 INDEX_NAME = "hyundai"
 NAMESPACE = "final_question_pt1"
 USER_DICT_PATH = "user_dict_1018.txt"
-BM25_ENCODER_PATH = (
-    "/Users/lwj/workspace/QnA/bm25_통합 Q&A_상품탐색_유형 분류 중간결과_1018_납품.json"
-)
+BM25_ENCODER_PATH = "bm25_통합 Q&A_상품탐색_유형 분류 중간결과_1018_납품.json"
 st.set_page_config(layout="wide")
 cols = ["title", "content", "page_content", "label"]  # last_modified
 labels_pre = [""]
@@ -43,11 +41,16 @@ def init(index_name, user_dict_path):
     )
 
 
+def reset():
+    if "edited_df" in sst:
+        del sst.edited_df
+
+
 init(index_name=INDEX_NAME, user_dict_path=USER_DICT_PATH)
 st.title("현대차 Casper AI 크루 작업 도구")
 
 top_k = st.number_input(label="검색 결과 갯수", min_value=10, max_value=20)
-query = st.text_input(label="작업할 문장을 입력해 주세요.")
+query = st.text_input(label="작업할 문장을 입력해 주세요.", on_change=reset)
 if query:
     st.markdown("## 유사 데이터")
 
