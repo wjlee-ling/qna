@@ -51,8 +51,12 @@ st.title("현대차 Casper AI 크루 작업 도구")
 
 top_k = st.number_input(label="검색 결과 갯수", min_value=10, max_value=20)
 query = st.text_input(label="작업할 문장을 입력해 주세요.", on_change=reset)
+
+df = pd.read_csv("체계v0.4.csv", header=None)
+st.dataframe(df)
+
 if query:
-    st.markdown("## 유사 데이터")
+    st.markdown("### 유사 데이터")
 
     sst.resp = sst.vs.similarity_search(query=query, k=top_k)
 
