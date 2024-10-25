@@ -270,14 +270,16 @@ class PineconeVectorStore(VectorStore):
             - metadata: column(s) of metadata. If not specified, use all the columns except for the `text_col` column.
 
         """
-        original_df = pd.read_csv(csv_path, chunksize=1000)
+        original_df = pd.read_csv(csv_path, chunksize=300)
         for chunk_df in original_df:
             texts = chunk_df[text_col].to_list()
             ids = chunk_df[id_col].astype(str).to_list() if id_col else None
             metadatas = (
-                chunk_df[metadata_cols].to_dict(orient="records")
+                chunk_df[metadata_cols].fillna("").to_dict(orient="records")
                 if metadata_cols
-                else chunk_df.drop(columns=[text_col]).to_dict(orient="records")
+                else chunk_df.drop(columns=[text_col])
+                .fillna("")
+                .to_dict(orient="records")
             )
 
             self.add_texts(
