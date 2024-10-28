@@ -8,7 +8,8 @@ load_dotenv()
 import matplotlib.pyplot as plt
 import streamlit as st
 from streamlit import session_state as sst
-
+import gspread
+from google.oauth2.service_account import Credentials
 
 cols = [
     "Q",
@@ -42,6 +43,34 @@ st.set_page_config(layout="wide")
 
 @st.cache_data
 def get_data():
+    # SCOPES = [
+    #     "https://www.googleapis.com/auth/spreadsheets",
+    #     "https://www.googleapis.com/auth/drive",
+    # ]
+    # creds = Credentials.from_service_account_file(
+    #     "casper-440006-65824f8819cf.json", scopes=SCOPES
+    # )
+
+    # # Connect to the Google Sheets API
+    # client = gspread.authorize(creds)
+
+    # # Open the spreadsheet by its URL or by its name
+    # spreadsheet = client.open_by_url(
+    #     # "1bz8H3bKpFmrHC0IA2K3emKlCLF-Ol9f23Q93c-LIS7A",
+    #     "https://docs.google.com/spreadsheets/d/1bz8H3bKpFmrHC0IA2K3emKlCLF-Ol9f23Q93c-LIS7A/edit?usp=sharing"
+    # )
+
+    # # Select the sheet by index (0 means the first sheet)
+    # worksheet = spreadsheet.get_worksheet(0)
+
+    # # Get all records (as a list of dictionaries)
+    # records = worksheet.get_all_records()
+
+    # df = pd.DataFrame.from_records(records)
+    # df.columns = df.iloc[0]
+    # df = df.iloc[1:][cols]
+    # st.data_editor(df.head(5))
+
     df = pd.read_csv(
         "통합 Q&A_상품탐색_유형 분류 중간결과_1021_TEXTNET 사내용_1025.csv"
     )[cols]
@@ -86,37 +115,39 @@ def reset():
 
 st.title("QnA 데이터 검색 & 분석")
 
-# top_k = st.number_input(label="검색 결과 갯수", min_value=10, max_value=20)
+sst.csv = st.sidebar.file_uploader("upload a csv file")
 
-if sst.logged_in:
+if sst.csv:
     df, df_counts = get_data()
+
+    with st.expander(f"전체 데이터 분포: {sst.csv.name}", expanded=False):
+        # plt.figure(figsize=(10, 6))
+        # for label, group in df_counts.groupby("final_label"):
+        #     plt.bar(group["intent"], group["Q"], label=f"final_label: {label}")
+
+        # plt.legend(title="Label")
+        # plt.xticks(rotation=45, ha="right")
+        # plt.tight_layout()
+        # st.pyplot(plt)
+        st.data_editor(
+            df_counts,
+            column_config={
+                "intent": st.column_config.Column(
+                    "intent",
+                    width="medium",
+                    required=True,
+                ),
+                "regex": st.column_config.Column(
+                    "regex",
+                    width="medium",
+                    required=True,
+                ),
+            },
+        )
 else:
-    st.warning("app/ 에서 로그인 먼저 하세요.")
+    st.warning("csv 파일 업로드 해 주세요.")
+    st.stop()
 
-with st.expander("전체 데이터 분포", expanded=False):
-    # plt.figure(figsize=(10, 6))
-    # for label, group in df_counts.groupby("final_label"):
-    #     plt.bar(group["intent"], group["Q"], label=f"final_label: {label}")
-
-    # plt.legend(title="Label")
-    # plt.xticks(rotation=45, ha="right")
-    # plt.tight_layout()
-    # st.pyplot(plt)
-    st.data_editor(
-        df_counts,
-        column_config={
-            "intent": st.column_config.Column(
-                "intent",
-                width="medium",
-                required=True,
-            ),
-            "regex": st.column_config.Column(
-                "regex",
-                width="medium",
-                required=True,
-            ),
-        },
-    )
 
 with st.form("form"):
     regex = st.text_input(value="", label="검색어")
