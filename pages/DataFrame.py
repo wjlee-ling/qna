@@ -58,11 +58,18 @@ def get_data():
         .reset_index()[["final_label", "intent", "Q"]]
         .sort_values(by="Q", ascending=False)
     )
+
     return df, df_counts
 
 
-def search_regex(regex, df, columns: list[str]):
+def search_regex(regex, df, columns: list[str], labels: list[str], intents: list[str]):
     combined_condition = pd.Series(False, index=df.index)
+
+    target_df = df.copy()
+    if labels:
+        target_df = target_df[df["final_label"].isin(labels)]
+    if intents:
+        target_df = target_df[df["intent"].isin(intents)]
 
     for col in columns:
         if col in df.columns:
@@ -72,9 +79,21 @@ def search_regex(regex, df, columns: list[str]):
         else:
             print(f"Warning: Column '{col}' not found in DataFrame.")
 
-    return df[combined_condition][["Q", "final_label", "intent", "regex"]].sort_values(
-        by=["final_label", "intent"]
+    return target_df[combined_condition][
+        ["Q", "final_label", "intent", "regex"]
+    ].sort_values(by=["final_label", "intent"])
+
+
+@st.cache_resource
+def get_unique_values_per_label(df):
+    filtered_df = (
+        df[df["final_label"].isin(labels_pre)]
+        .groupby(["final_label"])["intent"]
+        .unique()
+        .reset_index()
     )
+
+    return filtered_df
 
 
 def reset():
@@ -90,14 +109,19 @@ if sst.csv:
     df, df_counts = get_data()
 
     with st.expander(f"전체 데이터 분포: {sst.csv.name}", expanded=False):
-        # plt.figure(figsize=(10, 6))
-        # for label, group in df_counts.groupby("final_label"):
-        #     plt.bar(group["intent"], group["Q"], label=f"final_label: {label}")
 
-        # plt.legend(title="Label")
-        # plt.xticks(rotation=45, ha="right")
-        # plt.tight_layout()
-        # st.pyplot(plt)
+        label_df = get_unique_values_per_label(df)
+        st.data_editor(
+            label_df,
+            column_config={
+                "intent": st.column_config.Column(
+                    "intent",
+                    width="large",
+                    required=True,
+                )
+            },
+        )
+
         st.data_editor(
             df_counts,
             column_config={
@@ -125,7 +149,7 @@ with st.form("form"):
         options=["Q", "final_question"],
         default="Q",
     )
-    label = st.multiselect(
+    labels = st.multiselect(
         label="분류 (복수선택 가능)",
         options=labels_pre,
     )
@@ -142,20 +166,12 @@ if submit:
     st.markdown("### 검색 결과")
 
     if "edited_df" not in sst:
-        sst.edited_df = search_regex(regex, df, column)
-        with st.expander(f"분포 분석", expanded=False):
-            result = (
-                df[df["final_label"].isin(intents)]
-                .groupby(["final_label", "intent"])["regex"]
-                .unique()
-                .reset_index()
-                .sort_values(by=["final_label", "intent", "regex"])
-            )
-            st.write(result)
+        sst.edited_df = search_regex(regex, df, column, labels, intents)
 
     updated_df = st.data_editor(
         sst.edited_df,
         hide_index=True,
+        use_container_width=True,
         # disabled=("post_id"),
         # column_config={
         #     "widgets": st.column_config.Column(
