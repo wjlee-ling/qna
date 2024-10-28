@@ -7,8 +7,7 @@ from streamlit import session_state as sst
 st.set_page_config(layout="wide")
 
 USER_CREDENTIALS = {
-    "user1": "password123",
-    "admin": "adminpass",
+    "admin": os.getenv("PASSWORD"),
 }
 
 

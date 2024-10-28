@@ -88,7 +88,11 @@ st.title("QnA 데이터 검색 & 분석")
 
 # top_k = st.number_input(label="검색 결과 갯수", min_value=10, max_value=20)
 
-df, df_counts = get_data()
+if sst.logged_in:
+    df, df_counts = get_data()
+else:
+    st.warning("app/ 에서 로그인 먼저 하세요.")
+
 with st.expander("전체 데이터 분포", expanded=False):
     # plt.figure(figsize=(10, 6))
     # for label, group in df_counts.groupby("final_label"):
