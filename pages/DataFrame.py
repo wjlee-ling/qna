@@ -1,15 +1,12 @@
 import os
 import pandas as pd
 from dotenv import load_dotenv
-from langchain_openai import OpenAIEmbeddings
 
 load_dotenv()
 
 import matplotlib.pyplot as plt
 import streamlit as st
 from streamlit import session_state as sst
-import gspread
-from google.oauth2.service_account import Credentials
 
 cols = [
     "Q",
@@ -43,34 +40,6 @@ st.set_page_config(layout="wide")
 
 @st.cache_data
 def get_data():
-    # SCOPES = [
-    #     "https://www.googleapis.com/auth/spreadsheets",
-    #     "https://www.googleapis.com/auth/drive",
-    # ]
-    # creds = Credentials.from_service_account_file(
-    #     "casper-440006-65824f8819cf.json", scopes=SCOPES
-    # )
-
-    # # Connect to the Google Sheets API
-    # client = gspread.authorize(creds)
-
-    # # Open the spreadsheet by its URL or by its name
-    # spreadsheet = client.open_by_url(
-    #     # "1bz8H3bKpFmrHC0IA2K3emKlCLF-Ol9f23Q93c-LIS7A",
-    #     "https://docs.google.com/spreadsheets/d/1bz8H3bKpFmrHC0IA2K3emKlCLF-Ol9f23Q93c-LIS7A/edit?usp=sharing"
-    # )
-
-    # # Select the sheet by index (0 means the first sheet)
-    # worksheet = spreadsheet.get_worksheet(0)
-
-    # # Get all records (as a list of dictionaries)
-    # records = worksheet.get_all_records()
-
-    # df = pd.DataFrame.from_records(records)
-    # df.columns = df.iloc[0]
-    # df = df.iloc[1:][cols]
-    # st.data_editor(df.head(5))
-
     df = pd.read_csv(
         "통합 Q&A_상품탐색_유형 분류 중간결과_1021_TEXTNET 사내용_1025.csv"
     )[cols]
