@@ -764,8 +764,8 @@ class HybridPineconeVectorStore(VectorStore):
         )
 
 
-@deprecated(since="0.0.3", removal="0.3.0", alternative="HybridPineconeVectorStore")
-class Pinecone(PineconeVectorStore):
-    """Deprecated. Use PineconeVectorStore instead."""
+# @deprecated(since="0.0.3", removal="0.3.0", alternative="HybridPineconeVectorStore")
+# class Pinecone(PineconeVectorStore):
+#     """Deprecated. Use PineconeVectorStore instead."""
 
-    pass
+#     pass
