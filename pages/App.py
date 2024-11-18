@@ -1,4 +1,4 @@
-from vectorstore.pinecone import PineconeVectorStore, get_or_create_pinecone_index
+from vectorstore.pinecone import HybridPineconeVectorStore, get_or_create_pinecone_index
 from vectorstore.sparse import BM25Encoder, KiwiTokenizer
 
 import os
@@ -12,12 +12,12 @@ import streamlit as st
 from streamlit import session_state as sst
 
 
-INDEX_NAME = "hyundai"
-NAMESPACE = "final_question_pt1"
+INDEX_NAME = "casper"
+NAMESPACE = "pre_1018"
 USER_DICT_PATH = "user_dict_1018.txt"
 BM25_ENCODER_PATH = "bm25_통합 Q&A_상품탐색_유형 분류 중간결과_1018_납품.json"
 
-cols = ["title", "content", "page_content", "label"]  # last_modified
+cols = ["title", "content", "Q", "final_label"]  # last_modified
 labels_pre = [""]
 
 
@@ -32,7 +32,7 @@ def init(index_name, user_dict_path):
     bm25.load(BM25_ENCODER_PATH)
     bm25.replace_with_Kiwi_tokenizer(kiwi)
 
-    sst.vs = PineconeVectorStore(
+    sst.vs = HybridPineconeVectorStore(
         sst.pc_index,
         sst.embeddings,
         sparse_encoder=bm25,
@@ -49,11 +49,11 @@ def reset():
 init(index_name=INDEX_NAME, user_dict_path=USER_DICT_PATH)
 st.title("현대차 Casper AI 크루 작업 도구")
 
-top_k = st.number_input(label="검색 결과 갯수", min_value=10, max_value=20)
+top_k = st.number_input(label="검색 결과 갯수", min_value=15, max_value=30)
 query = st.text_input(label="작업할 문장을 입력해 주세요.", on_change=reset)
 
-df = pd.read_csv("체계v0.4.csv", header=None)
-st.dataframe(df)
+# df = pd.read_csv("체계v0.4.csv", header=None)
+# st.dataframe(df)
 
 if query:
     st.markdown("### 유사 데이터")

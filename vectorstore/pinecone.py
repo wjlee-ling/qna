@@ -60,7 +60,7 @@ def get_or_create_pinecone_index(index_name, dimension=1536, metric="dotproduct"
     return index
 
 
-class PineconeVectorStore(VectorStore):
+class HybridPineconeVectorStore(VectorStore):
     """Pinecone vector store integration.
 
     Setup:
