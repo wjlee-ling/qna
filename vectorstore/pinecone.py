@@ -1,3 +1,7 @@
+"""
+Added sparse encoding features to the original langchain_pinecone Vectorstore code. 
+"""
+
 from __future__ import annotations
 
 import logging
@@ -640,7 +644,7 @@ class HybridPineconeVectorStore(VectorStore):
         *,
         id_prefix: Optional[str] = None,
         **kwargs: Any,
-    ) -> PineconeVectorStore:
+    ) -> HybridPineconeVectorStore:
         """Construct Pinecone wrapper from raw documents.
 
         This is a user-friendly interface that:
@@ -692,7 +696,7 @@ class HybridPineconeVectorStore(VectorStore):
         text_key: str = "text",
         namespace: Optional[str] = None,
         pool_threads: int = 4,
-    ) -> PineconeVectorStore:
+    ) -> HybridPineconeVectorStore:
         """Load pinecone vectorstore from index name."""
         pinecone_index = cls.get_pinecone_index(index_name, pool_threads)
         return cls(pinecone_index, embedding, text_key, namespace)
@@ -760,7 +764,7 @@ class HybridPineconeVectorStore(VectorStore):
         )
 
 
-@deprecated(since="0.0.3", removal="0.3.0", alternative="PineconeVectorStore")
+@deprecated(since="0.0.3", removal="0.3.0", alternative="HybridPineconeVectorStore")
 class Pinecone(PineconeVectorStore):
     """Deprecated. Use PineconeVectorStore instead."""
 
