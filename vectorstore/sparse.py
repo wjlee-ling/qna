@@ -32,7 +32,7 @@ class KiwiTokenizer(BM25Tokenizer):
         return [
             token.form
             for token in self._tokenizer.tokenize(text)
-            if token not in self.stopwords
+            if token.form not in self.stopwords
         ]
 
 
