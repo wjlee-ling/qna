@@ -70,7 +70,7 @@ if sst.csv:
         submit = st.form_submit_button("라벨링 시작")
 
     if submit:
-        chunk_size = 10
+        chunk_size = 100
         chunked_dfs = [
             sst.df.iloc[i : i + chunk_size] for i in range(0, len(sst.df), chunk_size)
         ]
@@ -90,6 +90,6 @@ if sst.csv:
         if total_df.shape[0] > 0 and st.download_button(
             "작업된 csv 다운로드",
             total_df.to_csv().encode("utf-8"),
-            file_name=f"{sst.csv.name}_라벨링.csv",
+            file_name=f"{sst.csv.name.rstrip('.csv')}_라벨링.csv",
         ):
             st.info("다운로드 완료")
