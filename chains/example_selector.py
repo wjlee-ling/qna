@@ -119,3 +119,18 @@ class CustomExampleSelector(BaseExampleSelector):
 
 
 example_prompt = PromptTemplate.from_template("input:\n{input}\noutput:\n{output}")
+
+
+def get_example_selector_prompt(example_selector, example_prompt):
+    example_selector_prompt = FewShotPromptTemplate(
+        example_selector=example_selector,
+        example_prompt=example_prompt,
+        suffix="input:\n{input}\noutput:\n",
+        prefix="Your task is to, given a new query as input, classify its intent and label.\nYou will be given previous parsed results to which you can refer to parse the new query. If you are uncertain with the intent, leave it an empty string.",
+        input_variables=["input"],
+    )
+    return example_selector_prompt
+
+
+def get_example_selector_chain_with_structured_output(example_selector_prompt, llm):
+    return example_selector_prompt | llm.with_structured_output(Parsed)
