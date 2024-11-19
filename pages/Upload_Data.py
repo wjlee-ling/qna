@@ -152,20 +152,6 @@ if sst.csv:
             "id를 위한 column에 한글이 포함되어 있습니다. Pincecone의 id는 ascii 만 지원하므로 자동으로 id내 한글 문자를 알파벳으로 바꿔 다시 업로드해주세요. 알파벳으로 바꿀 시 'id' 칼럼만 바뀌도록 주의하세요."
         )
 
-    example_selector = CustomExampleSelector(
-        vectorstore=sst.vs,
-        namespace=NAMESPACE,
-    )
-    prompt = FewShotPromptTemplate(
-        example_selector=example_selector,
-        example_prompt=example_prompt,
-        suffix="input:\n{input}\noutput:\n",
-        prefix="Your task is to, given a new query as input, classify its intent and label.\nYou will be given previous parsed results to which you can refer to parse the new query. If you are uncertain with the intent, leave it an empty string.",
-        input_variables=["input"],
-    )
-
-    st.success(prompt.format(input=sst.df.iloc[0]["유사질의"]))
-
     if sst.vs and st.button(
         f"Pinecone 인덱스: '{INDEX_NAME}' -- 네임스페이스: '{NAMESPACE}'에 Upsert"
     ):
