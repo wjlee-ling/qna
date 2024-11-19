@@ -126,14 +126,11 @@ def pickle_to_dataframe(filename):
     return df
 
 
-for query in ["모터 스튜디오"]:
-    get_query_response(query, num=500)
-    df = pickle_to_dataframe(f"/Users/lwj/workspace/QnA/kin_{query}.pkl")
-    df.to_csv(f"kin_{query}.csv")
+# for query in ["모터 스튜디오"]:
+#     get_query_response(query, num=500)
+#     df = pickle_to_dataframe(f"/Users/lwj/workspace/QnA/kin_{query}.pkl")
+#     df.to_csv(f"kin_{query}.csv")
 
 # r = load_from_pickle("/Users/lwj/workspace/QnA/kin_현대차 시승.pkl")
 # print(len(r["items"]))
 # print(r.keys())
-
-
-# print(df.iloc[0])
