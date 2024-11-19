@@ -154,8 +154,11 @@ def get_example_selector_chain_with_structured_output(example_selector_prompt, l
 
     def _parse(x) -> Dict:
         try:
-            return {"intent": x.intent, "hyundai_label": enum_parser.parse(x.label)}
+            return {
+                "intent": x.intent,
+                "hyundai_label": enum_parser.invoke(x.label).value,
+            }
         except:
-            return {"intent": x.intent, "hyundai_label": "<Label.etc: '기타'>"}
+            return {"intent": x.intent, "hyundai_label": "기타"}
 
     return example_selector_prompt | llm.with_structured_output(Parsed) | _parse
