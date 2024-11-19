@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 from enum import Enum
 from pydantic import BaseModel, Field
+from langchain.output_parsers.enum import EnumOutputParser
 from langchain_core.example_selectors.base import BaseExampleSelector
 from langchain_core.prompts.few_shot import FewShotPromptTemplate
 from langchain_core.prompts.prompt import PromptTemplate
@@ -124,7 +125,7 @@ Your task is to, given a new query as input and example(s), classify its **most 
 You will be given previous parsed results to which you can refer in order to parse the new query. \
 Specifically,
 1. Find the most relevant or similar example(s) to the current input query.
-2. The intent of the query should be the same as that of the most relevant or similar example query.
+2. The intent of the query should be the same as that of the most relevant or similar example query. Do not use the label(s) of the example querie(s) as the intent of the current input query.
 3. The label of the query should be the same as that of the most relevant or similar example query.
 4. If no examples are given or given examples bear no resemblance or relevance to the current input query, label the intent of the current query as "" (empty string)."""
 
@@ -149,8 +150,12 @@ def get_example_selector_prompt(example_selector):
 
 
 def get_example_selector_chain_with_structured_output(example_selector_prompt, llm):
-    def _dump2dict(x) -> Dict:
-        print(x)
-        return x.model_dump()
+    enum_parser = EnumOutputParser(enum=Label)
 
-    return example_selector_prompt | llm.with_structured_output(Parsed) | _dump2dict
+    def _parse(x) -> Dict:
+        try:
+            return {"intent": x.intent, "hyundai_label": enum_parser.parse(x.label)}
+        except:
+            return {"intent": x.intent, "hyundai_label": "<Label.etc: '기타'>"}
+
+    return example_selector_prompt | llm.with_structured_output(Parsed) | _parse
