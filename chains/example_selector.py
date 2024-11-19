@@ -119,18 +119,38 @@ class CustomExampleSelector(BaseExampleSelector):
 
 
 example_prompt = PromptTemplate.from_template("input:\n{input}\noutput:\n{output}")
+example_selector_prefix = """\
+Your task is to, given a new query as input and example(s), classify its **most likely** intent and label. \
+You will be given previous parsed results to which you can refer in order to parse the new query. \
+Specifically,
+1. Find the most relevant or similar example(s) to the current input query.
+2. The intent of the query should be the same as that of the most relevant or similar example query.
+3. The label of the query should be the same as that of the most relevant or similar example query.
+4. If no examples are given or given examples bear no resemblance or relevance to the current input query, label the intent of the current query as "" (empty string)."""
+
+# example_selector_prompt = FewShotPromptTemplate(
+#     example_selector=example_selector,
+#     example_prompt=example_prompt,
+#     suffix="input:\n{input}\noutput:\n",
+#     prefix="Your task is to, given a new query as input, classify its **most likely** intent and label.\nYou will be given previous parsed results to which you can refer in order to parse the new query. AIf you are uncertain with the intent, leave it an empty string.",
+#     input_variables=["input"],
+# )
 
 
-def get_example_selector_prompt(example_selector, example_prompt):
+def get_example_selector_prompt(example_selector):
     example_selector_prompt = FewShotPromptTemplate(
         example_selector=example_selector,
         example_prompt=example_prompt,
         suffix="input:\n{input}\noutput:\n",
-        prefix="Your task is to, given a new query as input, classify its intent and label.\nYou will be given previous parsed results to which you can refer to parse the new query. If you are uncertain with the intent, leave it an empty string.",
+        prefix=example_selector_prefix,
         input_variables=["input"],
     )
     return example_selector_prompt
 
 
 def get_example_selector_chain_with_structured_output(example_selector_prompt, llm):
-    return example_selector_prompt | llm.with_structured_output(Parsed)
+    def _dump2dict(x) -> Dict:
+        print(x)
+        return x.model_dump()
+
+    return example_selector_prompt | llm.with_structured_output(Parsed) | _dump2dict
