@@ -1,3 +1,7 @@
+"""
+Added sparse encoding features to the original langchain_pinecone Vectorstore code. 
+"""
+
 from __future__ import annotations
 
 import logging
@@ -60,7 +64,7 @@ def get_or_create_pinecone_index(index_name, dimension=1536, metric="dotproduct"
     return index
 
 
-class PineconeVectorStore(VectorStore):
+class HybridPineconeVectorStore(VectorStore):
     """Pinecone vector store integration.
 
     Setup:
@@ -275,9 +279,11 @@ class PineconeVectorStore(VectorStore):
             texts = chunk_df[text_col].to_list()
             ids = chunk_df[id_col].astype(str).to_list() if id_col else None
             metadatas = (
-                chunk_df[metadata_cols].to_dict(orient="records")
+                chunk_df[metadata_cols].fillna("").to_dict(orient="records")
                 if metadata_cols
-                else chunk_df.drop(columns=[text_col]).to_dict(orient="records")
+                else chunk_df.drop(columns=[text_col])
+                .fillna("")
+                .to_dict(orient="records")
             )
 
             self.add_texts(
@@ -638,7 +644,7 @@ class PineconeVectorStore(VectorStore):
         *,
         id_prefix: Optional[str] = None,
         **kwargs: Any,
-    ) -> PineconeVectorStore:
+    ) -> HybridPineconeVectorStore:
         """Construct Pinecone wrapper from raw documents.
 
         This is a user-friendly interface that:
@@ -690,7 +696,7 @@ class PineconeVectorStore(VectorStore):
         text_key: str = "text",
         namespace: Optional[str] = None,
         pool_threads: int = 4,
-    ) -> PineconeVectorStore:
+    ) -> HybridPineconeVectorStore:
         """Load pinecone vectorstore from index name."""
         pinecone_index = cls.get_pinecone_index(index_name, pool_threads)
         return cls(pinecone_index, embedding, text_key, namespace)
@@ -752,14 +758,14 @@ class PineconeVectorStore(VectorStore):
         """
         return self._index.query(
             namespace=namespace,
-            filter=filters #{"genre": {"$eq": "documentary"}},
+            filter=filters,  # {"genre": {"$eq": "documentary"}},
             top_k=top_k,
             include_metadata=True,  # Include metadata in the response.
         )
 
 
-@deprecated(since="0.0.3", removal="0.3.0", alternative="PineconeVectorStore")
-class Pinecone(PineconeVectorStore):
-    """Deprecated. Use PineconeVectorStore instead."""
+# @deprecated(since="0.0.3", removal="0.3.0", alternative="HybridPineconeVectorStore")
+# class Pinecone(PineconeVectorStore):
+#     """Deprecated. Use PineconeVectorStore instead."""
 
-    pass
+#     pass
