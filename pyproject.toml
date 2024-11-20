@@ -18,6 +18,8 @@ pandas = "^2.2.3"
 matplotlib = "^3.9.2"
 tqdm = "^4.66.6"
 bs4 = "^0.0.2"
+selenium = "^4.26.1"
+pyperclip = "^1.9.0"
 
 
 [build-system]
