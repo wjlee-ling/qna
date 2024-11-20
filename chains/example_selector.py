@@ -1,3 +1,4 @@
+from chains.hyundai_labels import Label
 from vectorstore.pinecone import get_or_create_pinecone_index, HybridPineconeVectorStore
 
 import os
@@ -13,28 +14,6 @@ from langchain_openai import OpenAIEmbeddings
 from typing import List, Dict
 
 load_dotenv()
-
-typo_mapping = {
-    "상품탐색_엔진/바디타입": "상품 탐색 _ 엔진 / 바디타입",
-    "상품탐색_트림/옵션/옵션조합": "상품 탐색 _ 트림 / 옵션 / 옵션조합",
-    "상품탐색_디자인": "상품 탐색 _ 디자인",
-    "상품탐색_차종비교": "상품 탐색_차종비교",
-    "상품탐색_라이프스타일": "상품탐색_라이프스타일",
-}
-
-
-class Label(str, Enum):
-    buying = "구매절차"
-    payment = "결제조합"
-    aftermarket = "애프터마켓"
-    tax_benefit = "세제혜택"
-    test_driving = "시승"
-    model = "상품 탐색 _ 엔진 / 바디타입"
-    trim_option = "상품 탐색 _ 트림 / 옵션 / 옵션조합"
-    design = "상품 탐색 _ 디자인"
-    comparison = "상품 탐색_차종비교"
-    lifestyle = "상품탐색_라이프스타일"
-    etc = "기타"
 
 
 class Parsed(BaseModel):
