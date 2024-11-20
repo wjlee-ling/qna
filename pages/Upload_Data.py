@@ -20,7 +20,7 @@ sst.csv = st.sidebar.file_uploader("upload a csv file")
 
 INDEX_NAME = st.sidebar.text_input("Pinecone 인덱스 이름", value="casper")
 NAMESPACE = st.sidebar.text_input("Pinecone 인덱스 내 Namespace 이름", value="pre_1018")
-USER_DICT_PATH = "./user_dict_1018.txt"
+USER_DICT_PATH = "data/user_dict_1018.txt"
 BM25_ENCODER_PATH = "bm25_통합 Q&A_상품탐색_유형 분류 중간결과_1018_납품.json"
 
 
