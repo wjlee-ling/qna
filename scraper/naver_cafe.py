@@ -1,12 +1,13 @@
 from scraper.helpers import *
 from scraper.naver_login import login_naver
 
-
 import copy
+import os
 import time
 from datetime import datetime
 from typing import List, Dict
 
+from dotenv import load_dotenv
 from tqdm import tqdm
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -15,7 +16,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 
-URL = "https://cafe.naver.com/cafe2078"
+load_dotenv()
+
+URL = os.getenv("NAVER_CAFE_URL")
 TARGET_BOARD_NUM = "669"  # 통합 Q&A
 
 chrome_options = Options()
