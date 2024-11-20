@@ -1,6 +1,20 @@
-# QnA Streamlit 작업툴
+# QnA 작업도구
 
-## 1. csv 업로드 & Pinecone 업데이트
+## LangChain 기반 chains
+
+- [chain별 설명](chains/README.md)
+
+## scraper
+
+- [네이버 카페/지식인 크롤러 설명](scraper/README.md)
+
+## Streamlit 툴
+
+### 0. 작동
+
+`streamlit run app.py`
+
+### 1. csv 업로드 & Pinecone 업데이트
 
 - `pages/Upload_Data.py`
 - Pinecone 벡터스토어에 hybrid 벡터 저장
@@ -13,7 +27,7 @@
 3. 해당 index/namespace의 정보값(dimension, 저장된 벡터수) 및 업로드한 파일의 크기 확인
 4. Upsert 버튼 클릭
 
-## 2. Example Selector 기반 라벨링
+### 2. Example Selector 기반 라벨링
 
 - `pages/Pasrse.py`
 - Pinecone 벡터스토어에 저장된 벡터값 기반 유사도 검색하여 few-shot 예시 지정 (`chains/example_selector.py`)
