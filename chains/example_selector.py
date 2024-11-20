@@ -1,5 +1,6 @@
-from chains.hyundai_labels import Label
+from chains.schemas import Label
 from vectorstore.pinecone import get_or_create_pinecone_index, HybridPineconeVectorStore
+from vectorstore.sparse import BM25Encoder, KiwiTokenizer
 
 import os
 
@@ -9,6 +10,7 @@ from langchain.output_parsers.enum import EnumOutputParser
 from langchain_core.example_selectors.base import BaseExampleSelector
 from langchain_core.prompts.few_shot import FewShotPromptTemplate
 from langchain_core.prompts.prompt import PromptTemplate
+from langchain_core.runnables import RunnableLambda
 from langchain_openai import OpenAIEmbeddings
 from typing import List, Dict
 
@@ -64,11 +66,6 @@ class CustomExampleSelector(BaseExampleSelector):
         tokenizer_dict_path: str = None,
         sparse_encoder_path: str = None,
     ):
-        from vectorstore.pinecone import (
-            HybridPineconeVectorStore,
-            get_or_create_pinecone_index,
-        )
-        from vectorstore.sparse import BM25Encoder, KiwiTokenizer
 
         pc_index = get_or_create_pinecone_index(index_name)
 
@@ -128,8 +125,6 @@ def get_example_selector_prompt(example_selector):
 
 
 def get_example_selector_chain_with_structured_output(example_selector_prompt, llm):
-    from langchain_core.runnables import RunnableLambda
-
     enum_parser = EnumOutputParser(enum=Label)
 
     def _parse(x) -> Dict:
