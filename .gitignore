@@ -3,3 +3,7 @@ poetry.lock
 **/__pycache__/*
 **/.DS_Store
 data/
+chains/prompts.py
+chains/schemas.py 
+APP copy.py
+DataFrame copy.py
