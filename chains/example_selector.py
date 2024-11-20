@@ -4,7 +4,6 @@ from vectorstore.pinecone import get_or_create_pinecone_index, HybridPineconeVec
 import os
 
 from dotenv import load_dotenv
-from enum import Enum
 from pydantic import BaseModel, Field
 from langchain.output_parsers.enum import EnumOutputParser
 from langchain_core.example_selectors.base import BaseExampleSelector
