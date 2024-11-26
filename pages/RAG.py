@@ -122,6 +122,9 @@ def upsert_from_dataframe_to_pinecone(
     #         )
 
 
+if "logged_in" not in sst or not sst.logged_in:
+    st.stop()
+
 with st.form("검색 및 답변 구축"):
     user_input = st.text_input("검색할 대표질의 또는 유사질의를 입력해주세요.")
     user_prefix = st.selectbox(
