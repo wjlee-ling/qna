@@ -125,7 +125,7 @@ def upsert_from_dataframe_to_pinecone(
 if "logged_in" not in sst or not sst.logged_in:
     st.stop()
 
-with st.expnader("작업 가이드라인", expand=False):
+with st.expander("작업 가이드라인", expanded=False):
     st.write(
         """\
 ## 크루 작업 가이드라인
