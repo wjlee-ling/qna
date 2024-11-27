@@ -80,46 +80,43 @@ def upsert_from_dataframe_to_pinecone(
             metadata_cols=metadata_cols,
         )
 
-    # def contains_korean(text):
-    #     if isinstance(text, str):
-    #         # Regex pattern to match Korean characters
-    #         korean_pattern = re.compile(
-    #             r"[\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF\uA960-\uA97F\uD7B0-\uD7FF]+"
-    #         )
-    #         return bool(korean_pattern.search(text))
-    #     return False
 
-    # if sst.csv:
-    #     sst.df = get_data(sst.csv)
+def contains_korean(text):
+    if isinstance(text, str):
+        # Regex pattern to match Korean characters
+        korean_pattern = re.compile(
+            r"[\u1100-\u11FF\u3130-\u318F\uAC00-\uD7AF\uA960-\uA97F\uD7B0-\uD7FF]+"
+        )
+        return bool(korean_pattern.search(text))
+    return False
 
-    #     with st.spinner("Pinecone에 연결하는 중"):
-    #         sst.vs = init()
-    #         st.info(sst.vs.get_pinecone_index(INDEX_NAME).describe_index_stats())
 
-    #     sst.rag_chain = create_rag_chain(
-    #         llm=sst.llm, retriever=sst.vs.as_retriever(search_kwargs={"k": 4})
-    #     )
+if sst.logged_in:
+    with st.spinner("환경 설정 중"):
+        init()
 
-    #     with st.expander("DataFrame 분석", expanded=True):
-    #         st.write("columns")
-    #         st.info(sst.df.columns)
-    #         st.write("DataFrame shape")
-    #         st.info(f"{sst.df.shape[0]}행")
+if sst.csv:
+    sst.df = get_data(sst.csv)
 
-    #     if "id" in sst.df.columns and sum(sst.df["id"].apply(contains_korean)):
-    #         st.warning(
-    #             "id를 위한 column에 한글이 포함되어 있습니다. Pincecone의 id는 ascii 만 지원하므로 자동으로 id내 한글 문자를 알파벳으로 바꿔 다시 업로드해주세요. 알파벳으로 바꿀 시 'id' 칼럼만 바뀌도록 주의하세요."
-    #         )
+    with st.spinner("Pinecone에 연결하는 중"):
+        st.info(sst.vs.get_pinecone_index(INDEX_NAME).describe_index_stats())
 
-    #     if sst.vs and st.button(
-    #         f"Pinecone 인덱스: '{INDEX_NAME}' -- 네임스페이스: '{NAMESPACE}'에 Upsert"
-    #     ):
-    #         upsert_from_dataframe_to_pinecone(
-    #             csv_path=sst.csv,
-    #             text_col="text",
-    #             metadata_cols=["url", "text"],
-    #             id_col="id",
-    #         )
+    if "id" in sst.df.columns and sum(sst.df["id"].apply(contains_korean)):
+        st.warning(
+            "id를 위한 column에 한글이 포함되어 있습니다. Pincecone의 id는 ascii 만 지원하므로 자동으로 id내 한글 문자를 알파벳으로 바꿔 다시 업로드해주세요. 알파벳으로 바꿀 시 'id' 칼럼만 바뀌도록 주의하세요."
+        )
+
+    st.info(f"새로운 csv의 행의 갯수: {sst.df.shape[0]}")
+    if sst.vs and st.button(
+        f"Pinecone 인덱스: '{INDEX_NAME}' -- 네임스페이스: '{NAMESPACE}'에 Upsert"
+    ):
+
+        upsert_from_dataframe_to_pinecone(
+            csv_path=sst.csv,
+            text_col="text",
+            metadata_cols=["url", "text"],
+            id_col="id",
+        )
 
 
 if "logged_in" not in sst or not sst.logged_in:
@@ -162,7 +159,7 @@ with st.form("검색 및 답변 구축"):
 
     submitted = st.form_submit_button("검색")
     if submitted:
-        init()
+
         if "rag_chain" not in sst:
             sst.rag_chain = create_rag_chain(
                 llm=sst.llm, retriever=sst.vs.as_retriever(search_kwargs={"k": 4})
@@ -181,36 +178,3 @@ with st.form("검색 및 답변 구축"):
         for i, doc in enumerate(docs):
             st.write(f"{i}번째 참고 자료 // id: {doc.id}")
             st.info(doc.page_content)
-
-    # if sst.rag_chain and st.button("RAG 답변 생성"):
-    #     sst.df_target = sst.df[
-    #         (sst.df["유사질의"] != "") & (sst.df["hyundai_label"] == "구매절차")
-    #     ][:100]
-    #     st.dataframe(sst.df_target)
-    #     st.info(f"타겟 행 수: {sst.df_target.shape[0]}")
-
-    #     chunk_size = 100
-    #     chunked_dfs = [
-    #         sst.df_target.iloc[i : i + chunk_size]
-    #         for i in range(0, len(sst.df_target), chunk_size)
-    #     ]
-
-    #     dfs = []
-    #     with st.spinner("LLM 작업 중"):
-    #         for chunk_df in chunked_dfs:
-    #             inputs = [{"input": value} for value in chunk_df["유사질의"].tolist()]
-    #             outputs = sst.rag_chain.batch(inputs)
-
-    #             chunk_df["답변"] = [o["answer"] for o in outputs]
-    #             chunk_df["답변_출처"] = [
-    #                 o["sources"] if "sources" in o else "" for o in outputs
-    #             ]
-    #             dfs.append(chunk_df)
-
-    #     total_df = pd.concat(dfs)
-
-    #     st.download_button(
-    #         label="RAG 답변 다운로드",
-    #         file_name="rag 결과.csv",
-    #         data=total_df.to_csv().encode("utf-8"),
-    #     )
