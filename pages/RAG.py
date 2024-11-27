@@ -91,7 +91,7 @@ def contains_korean(text):
     return False
 
 
-if sst.logged_in:
+if sst.logged_in and "vs" not in sst:
     with st.spinner("환경 설정 중"):
         init()
 
@@ -120,6 +120,7 @@ if sst.csv:
 
 
 if "logged_in" not in sst or not sst.logged_in:
+    st.warning("로그인 해주세요.")
     st.stop()
 
 with st.expander("작업 가이드라인", expanded=False):
@@ -176,5 +177,8 @@ with st.form("검색 및 답변 구축"):
 
         st.write("참고 자료")
         for i, doc in enumerate(docs):
-            st.write(f"{i}번째 참고 자료 // id: {doc.id}")
+            try:
+                st.write(f"{i}번째 참고 자료 // id: {doc.id} // url: {doc.url}")
+            except:
+                st.write(f"{i}번째 참고 자료 // id: {doc.id}")
             st.info(doc.page_content)
