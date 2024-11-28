@@ -1,3 +1,4 @@
+from chains.default import create_basic_chain
 from chains.rag import create_rag_chain
 from vectorstore.pinecone import HybridPineconeVectorStore, get_or_create_pinecone_index
 from vectorstore.sparse import BM25Encoder, KiwiTokenizer
@@ -165,8 +166,11 @@ with st.form("검색 및 답변 구축"):
             sst.rag_chain = create_rag_chain(
                 llm=sst.llm, retriever=sst.vs.as_retriever(search_kwargs={"k": 4})
             )
+        if "basic_chain" not in sst:
+            sst.gpt_chain = create_basic_chain(llm=sst.llm)
 
         output = sst.rag_chain.invoke({"input": user_input})
+        gpt_output = sst.gpt_chain.invoke({"input": user_input})
 
         answer = output["answer"].content
         docs = output["context"]
@@ -176,6 +180,9 @@ with st.form("검색 및 답변 구축"):
             st.warning("검색 결과가 없습니다.")
 
         st.write("참고 자료")
+        st.write("ChatGPT 자유답변: 오류가 있을 수 있으니 주의")
+        st.warning(gpt_output)
+
         for i, doc in enumerate(docs):
             try:
                 st.write(f"{i}번째 참고 자료 // id: {doc.id} // url: {doc.url}")
